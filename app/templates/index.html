@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Financial Document Analyzer AI</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --card-bg: rgba(30, 41, 59, 0.7);
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --accent-1: #3b82f6;
+            --accent-2: #8b5cf6;
+            --border-color: rgba(255, 255, 255, 0.1);
+            --danger: #ef4444;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: var(--bg-color);
+            background-image: 
+                radial-gradient(at 0% 0%, rgba(59, 130, 246, 0.15) 0px, transparent 50%),
+                radial-gradient(at 100% 100%, rgba(139, 92, 246, 0.15) 0px, transparent 50%);
+            color: var(--text-main);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+            line-height: 1.5;
+        }
+
+        .container {
+            background: var(--card-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--border-color);
+            border-radius: 24px;
+            padding: 48px;
+            max-width: 540px;
+            width: 100%;
+            text-align: center;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .icon-wrapper {
+            width: 72px;
+            height: 72px;
+            background: linear-gradient(135deg, var(--accent-1), var(--accent-2));
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 24px auto;
+            box-shadow: 0 10px 25px rgba(139, 92, 246, 0.4);
+            transform: rotate(-3deg);
+            transition: transform 0.3s ease;
+        }
+
+        .container:hover .icon-wrapper {
+            transform: rotate(3deg) scale(1.05);
+        }
+
+        .icon-wrapper svg {
+            width: 36px;
+            height: 36px;
+            color: white;
+        }
+
+        h1 {
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 16px;
+            background: linear-gradient(to right, #ffffff, #94a3b8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: -0.5px;
+        }
+
+        p.subtitle {
+            color: var(--text-muted);
+            font-size: 16px;
+            margin-bottom: 36px;
+            font-weight: 400;
+        }
+
+        .upload-area {
+            border: 2px dashed rgba(139, 92, 246, 0.4);
+            border-radius: 16px;
+            padding: 48px 24px;
+            background: rgba(15, 23, 42, 0.4);
+            transition: all 0.3s ease;
+            position: relative;
+            cursor: pointer;
+            margin-bottom: 24px;
+        }
+
+        .upload-area:hover {
+            border-color: var(--accent-2);
+            background: rgba(139, 92, 246, 0.08);
+            transform: translateY(-2px);
+        }
+
+        .upload-area input[type="file"] {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            cursor: pointer;
+            z-index: 10;
+        }
+
+        .upload-icon {
+            color: var(--accent-2);
+            margin-bottom: 16px;
+            transition: transform 0.3s ease;
+        }
+
+        .upload-area:hover .upload-icon {
+            transform: translateY(-4px);
+        }
+
+        .upload-text {
+            font-weight: 600;
+            color: var(--text-main);
+            margin-bottom: 8px;
+            font-size: 18px;
+        }
+        <p id="file-name" style="margin-top: 12px; color: #cbd5e1; font-size: 14px;"></p>
+
+        .upload-hint {
+            font-size: 14px;
+            color: var(--text-muted);
+        }
+
+        button {
+            width: 100%;
+            padding: 18px;
+            border: none;
+            border-radius: 14px;
+            background: linear-gradient(135deg, var(--accent-1), var(--accent-2));
+            color: white;
+            font-size: 16px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(59, 130, 246, 0.5);
+        }
+
+        button:active {
+            transform: translateY(1px);
+        }
+        
+        button::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.25), transparent);
+            transition: all 0.6s ease;
+        }
+
+        button:hover::after {
+            left: 100%;
+        }
+
+        button svg {
+            width: 20px;
+            height: 20px;
+            transition: transform 0.3s ease;
+        }
+
+        button:hover svg {
+            transform: translateX(4px);
+        }
+
+        .upload-area:focus-within {
+            border-color: var(--accent-1);
+            box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.2);
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 32px 24px;
+            }
+            h1 {
+                font-size: 26px;
+            }
+            .upload-area {
+                padding: 32px 16px;
+            }
+        }
+    </style>
+</head>
+<script>
+    const fileInput = document.getElementById("invoice_file");
+    const fileNameText = document.getElementById("file-name");
+
+    fileInput.addEventListener("change", function () {
+        if (fileInput.files.length > 0) {
+            fileNameText.textContent = "Selected File: " + fileInput.files[0].name;
+        } else {
+            fileNameText.textContent = "";
+        }
+    });
+</script>
+<body>
+    <div class="container">
+        <div class="icon-wrapper">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+            </svg>
+        </div>
+        
+        <h1>Financial Document AI</h1>
+        <p class="subtitle">Upload an invoice, receipt, or balance sheet (PDF/Image) to instantly extract insights.</p>
+
+        <form action="/upload" method="POST" enctype="multipart/form-data">
+            <div class="upload-area">
+                <input type="file" name="invoice_file" id="invoice_file" accept=".pdf,image/*" required aria-label="Upload document">
+                
+                <div class="upload-icon">
+                    <svg width="48" height="48" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" style="margin: 0 auto;">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+                    </svg>
+                </div>
+                <div class="upload-text">Click to upload or drag & drop</div>
+                <div class="upload-hint">Supports PDF, PNG, JPG (Max 10MB)</div>
+            </div>
+            
+            <button type="submit">
+                Analyze Document
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+                </svg>
+            </button>
+        </form>
+    </div>
+</body>
+</html>
