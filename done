@@ -1,0 +1,72 @@
+[33mcommit 25ec1415713ecb3567a9c7730bd28e02d286d715[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m)[m
+Author: Kartik Budhraja <kartik.budhraja_cs.aiml24@gla.ac.in>
+Date:   Sat Apr 11 00:15:03 2026 +0530
+
+    Updated UI and improved project
+
+[33mcommit f5f1ce0195cc5b0b3693a55da265252444f6421c[m
+Author: abhii-creep-hub <abhinav.sharma_cs.aiml24@gla.ac.in>
+Date:   Fri Apr 3 00:46:04 2026 +0530
+
+    Updated financial document AI project with OCR, extraction, validation, fraud detection and UI
+
+[33mcommit 52b7c8ee3adc5775fde323eb3bd3af6d8cca43a4[m
+Merge: a2e2417 0c0fd48
+Author: abhii-creep-hub <abhinav.sharma_cs.aiml24@gla.ac.in>
+Date:   Mon Mar 9 13:42:04 2026 +0530
+
+    Merge branch 'main' of https://github.com/abhii-creep-hub/Financial_Doc_Analysis
+
+[33mcommit a2e24174adc942b61e1d0ab0cc2f693e1fdb4ec8[m
+Author: abhii-creep-hub <abhinav.sharma_cs.aiml24@gla.ac.in>
+Date:   Mon Mar 9 13:33:26 2026 +0530
+
+    Initial commit - Financial Document Analysis System
+
+[33mcommit 0c0fd482bf50ccc23a2416a63a1f2132fc2e7d0d[m
+Author: Abhinav Kumar Sharma <abhinav.sharma_cs.aiml24@gla.ac.in>
+Date:   Sat Mar 7 23:13:59 2026 +0530
+
+    Delete app/__init__.py
+
+[33mcommit fd56dad2867dce68efca321db749aa18f62d6a17[m
+Author: Abhinav Kumar Sharma <abhinav.sharma_cs.aiml24@gla.ac.in>
+Date:   Sat Mar 7 23:13:44 2026 +0530
+
+    Delete .venv directory
+
+[33mcommit a304dca6806b1a26fa377ae266d0e5c9bfa4bb76[m
+Author: Abhinav Kumar Sharma <abhinav.sharma_cs.aiml24@gla.ac.in>
+Date:   Sat Mar 7 23:13:09 2026 +0530
+
+    Delete README.md
+
+[33mcommit 6a292eede65a277608c5d6c9af855681f41f7520[m
+Author: Abhinav Kumar Sharma <abhinav.sharma_cs.aiml24@gla.ac.in>
+Date:   Sat Mar 7 23:12:40 2026 +0530
+
+    Delete config.py
+
+[33mcommit b053f6e47a07bff5a72bf12d7d5d6f7c4643d999[m
+Author: Abhinav Kumar Sharma <abhinav.sharma_cs.aiml24@gla.ac.in>
+Date:   Sat Mar 7 23:12:29 2026 +0530
+
+    Delete requirements.txt
+
+[33mcommit a738137a1eb5b855e46eab4dcc9ec084f9fe38bc[m
+Author: Abhinav Kumar Sharma <abhinav.sharma_cs.aiml24@gla.ac.in>
+Date:   Sat Mar 7 23:12:17 2026 +0530
+
+    Delete run.py
+
+[33mcommit 5ace66a1a7649cb8e1f6b116f7a137fb0f36b30e[m
+Author: Abhinav Kumar Sharma <abhinav.sharma_cs.aiml24@gla.ac.in>
+Date:   Sat Mar 7 23:12:05 2026 +0530
+
+    Delete tmpclaude-54c7-cwd
+
+[33mcommit 772d30e1b418ce5da19138a220dddd3de3398fb6[m
+Author: abhii-creep-hub <abhinav.sharma_cs.aiml24@gla.ac.in>
+Date:   Tue Mar 3 18:20:06 2026 +0530
+
+    Initial commit - Financial Document Analysis System
