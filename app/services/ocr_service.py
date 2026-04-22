@@ -3,35 +3,21 @@ import cv2
 import pytesseract
 import pdfplumber
 
-# Path to Tesseract OCR executable (Windows)
 pytesseract.pytesseract.tesseract_cmd = r"C:\Program Files\Tesseract-OCR\tesseract.exe"
 
-
 def extract_text(file_path):
-    """
-    Extract text from an invoice file.
-    Supports both image files and PDFs.
-    """
-
     file_extension = os.path.splitext(file_path)[1].lower()
 
-    # If the file is an image
     if file_extension in ['.png', '.jpg', '.jpeg']:
         return extract_text_from_image(file_path)
 
-    # If the file is a PDF
     elif file_extension == '.pdf':
         return extract_text_from_pdf(file_path)
 
     else:
         return "Unsupported file format"
 
-
 def extract_text_from_image(image_path):
-    """
-    Extract text from image using OCR.
-    """
-
     image = cv2.imread(image_path)
 
     if image is None:
@@ -43,12 +29,7 @@ def extract_text_from_image(image_path):
     text = pytesseract.image_to_string(thresh)
     return text
 
-
 def extract_text_from_pdf(pdf_path):
-    """
-    Extract text from PDF using pdfplumber.
-    """
-
     extracted_text = ""
 
     try:
