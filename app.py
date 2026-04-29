@@ -29,3 +29,5 @@ def detect_fraud(data):
 
     except:
         return "Fraud detection failed"
+    
+    

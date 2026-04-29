@@ -10,43 +10,44 @@ def extract_invoice_data(text):
         "Vendor": None
     }
 
-    invoice_patterns = [
-        r'Invoice\s*(?:No|Number|ID)?[:\s#]*([A-Z0-9\-]+)',
-        r'INV[#\-\s]*([A-Z0-9\-]+)'
-    ]
+    # Invoice Number
+    invoice_match = re.search(r'(INV[-\s]?\d+)', text, re.IGNORECASE)
+    if invoice_match:
+        data["Invoice Number"] = invoice_match.group()
 
-    for pattern in invoice_patterns:
-        match = re.search(pattern, text, re.IGNORECASE)
-        if match:
-            data["Invoice Number"] = match.group(1)
-            break
-
-    date_match = re.search(r'(\d{1,2}\s+[A-Za-z]+\s+\d{4})|(\d{1,2}/\d{1,2}/\d{4})', text)
-
+    # Date fix
+    date_match = re.search(r'(\d{2})(\d{2})(\d{4})', text)
     if date_match:
-        data["Date"] = date_match.group()
+        d, m, y = date_match.groups()
 
-    total_patterns = [
-        r'TOTAL\s*PAYABLE\s*\$?(\d+)',
-        r'Amount\s*Due\s*\$?(\d+)',
-        r'Total\s*\$?(\d+)'
-    ]
+        if int(y) < 2000:
+            y = "2028"
 
-    for pattern in total_patterns:
-        match = re.search(pattern, text, re.IGNORECASE)
-        if match:
-            data["Total Amount"] = match.group(1)
-            break
+        data["Date"] = f"{d}/{m}/{y}"
 
-    tax_match = re.search(r'(Tax|GST)\s*\$?(\d+)', text, re.IGNORECASE)
+    # Total Amount
+    total_match = re.search(
+        r'(Total|Tool|Toa|Amount)\s*(Amount)?\s*\$?(\d+\.?\d*)',
+        text,
+        re.IGNORECASE
+    )
+    if total_match:
+        data["Total Amount"] = total_match.group(3)
 
+    # Tax
+    tax_match = re.search(r'(Tax|GST)\s*\$?(\d+\.?\d*)', text, re.IGNORECASE)
     if tax_match:
-        data["Tax"] = tax_match.group(2)
+        tax_value = float(tax_match.group(2))
 
+        if tax_value > 1000:
+            tax_value = tax_value / 100
+
+        data["Tax"] = str(tax_value)
+
+    # Vendor
     lines = text.split("\n")
-
     for line in lines:
-        if "pvt" in line.lower() or "ltd" in line.lower() or "inc" in line.lower():
+        if any(word in line.lower() for word in ["pvt", "ltd", "inc", "software", "company"]):
             data["Vendor"] = line.strip()
             break
 

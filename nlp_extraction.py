@@ -31,3 +31,4 @@ def extract_entities(text):
         data["Invoice Number"] = invoice_match.group()
 
     return data
+
