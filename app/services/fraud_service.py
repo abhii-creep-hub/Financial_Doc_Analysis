@@ -8,24 +8,26 @@ sample_data = pd.DataFrame({
 })
 
 # Train model
-model = IsolationForest(contamination=0.1)
+model = IsolationForest(contamination=0.1, random_state=42)
 model.fit(sample_data)
 
 
 def detect_fraud(data):
-
     try:
-        if not data["Total Amount"] or not data["Tax"]:
+        # Check if required data exists
+        if not data.get("Total Amount") or not data.get("Tax"):
             return "Insufficient data for fraud detection"
 
         total = float(data["Total Amount"])
         tax = float(data["Tax"])
 
+        # Prepare test data
         test_df = pd.DataFrame({
             "total_amount": [total],
             "tax": [tax]
         })
 
+        # Predict
         prediction = model.predict(test_df)
 
         if prediction[0] == -1:

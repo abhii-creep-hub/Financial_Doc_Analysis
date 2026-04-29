@@ -1,14 +1,12 @@
-from sklearn.ensemble import IsolationForest
-import pandas as pd
+from flask import Flask
+from app.routes import main
 
-sample_data = pd.DataFrame({
-    "total_amount": [500, 620, 610, 590, 605, 615, 600, 598],
-    "tax": [20, 21, 21, 20, 21, 21, 20, 20]
-})
+app = Flask(__name__, template_folder="app/templates", static_folder="app/static")
+app.secret_key = "supersecretkey"
 
-model = IsolationForest(contamination=0.1)
-model.fit(sample_data)
+app.register_blueprint(main)
 
+<<<<<<< HEAD
 def detect_fraud(data):
 
     try:
@@ -31,3 +29,7 @@ def detect_fraud(data):
         return "Fraud detection failed"
     
     
+=======
+if __name__ == "__main__":
+    app.run(debug=True)
+>>>>>>> main
