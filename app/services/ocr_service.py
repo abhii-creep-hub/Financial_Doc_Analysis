@@ -3,7 +3,10 @@ import cv2
 import pytesseract
 import pdfplumber
 
-pytesseract.pytesseract.tesseract_cmd = r"C:\Program Files\Tesseract-OCR\tesseract.exe"
+# Configure Tesseract path based on environment
+if os.name == 'nt':  # Windows
+    pytesseract.pytesseract.tesseract_cmd = r"C:\Program Files\Tesseract-OCR\tesseract.exe"
+# On Heroku/Linux, Tesseract should be installed via buildpack
 
 def extract_text(file_path):
     file_extension = os.path.splitext(file_path)[1].lower()
