@@ -14,15 +14,16 @@ main = Blueprint('main', __name__)
 UPLOAD_FOLDER = "app/uploads"
 
 
+# ---------------- HOME ----------------
 @main.route('/')
 def home():
     return render_template('index.html')
 
 
+# ---------------- DASHBOARD ----------------
 @main.route('/dashboard')
 def dashboard():
     try:
-        # If file not exists
         if not os.path.exists("invoice_database.csv"):
             return render_template(
                 "dashboard.html",
@@ -35,7 +36,6 @@ def dashboard():
 
         df = pd.read_csv("invoice_database.csv")
 
-        # If CSV empty
         if df.empty:
             return render_template(
                 "dashboard.html",
@@ -46,44 +46,43 @@ def dashboard():
                 monthly_data={}
             )
 
-        # Clean column names
+        # --- CLEAN COLUMNS ---
         df.columns = [str(col).strip().lower().replace(" ", "_") for col in df.columns]
 
-        # Fix missing columns
+        # --- HANDLE MISSING COLUMNS ---
         if "vendor_name" not in df.columns:
-            if "vendor" in df.columns:
-                df.rename(columns={"vendor": "vendor_name"}, inplace=True)
-            else:
-                df["vendor_name"] = "Unknown"
+            df["vendor_name"] = "Unknown"
 
         if "total_amount" not in df.columns:
             df["total_amount"] = 0
 
-        # Convert data
+        # --- TYPE CONVERSION ---
         df["total_amount"] = pd.to_numeric(df["total_amount"], errors="coerce").fillna(0)
         df["vendor_name"] = df["vendor_name"].fillna("Unknown").astype(str)
 
-        # Remove invalid vendor names
+        # --- CLEAN DATA ---
         df = df[~df["vendor_name"].str.match(r'^\d+(\.\d+)?$', na=False)]
 
-        # Stats
-        total_invoices = len(df)
-        total_revenue = df["total_amount"].sum()
-        avg_amount = df["total_amount"].mean() if total_invoices > 0 else 0
+        # --- METRICS ---
+        total_invoices = int(len(df))
+        total_revenue = float(df["total_amount"].sum())
+        avg_amount = float(df["total_amount"].mean()) if total_invoices > 0 else 0
 
-        # Vendor counts
-        vendor_counts = df["vendor_name"].value_counts().to_dict() or {}
+        vendor_counts = df["vendor_name"].value_counts().to_dict()
 
-        # Monthly data
+        # --- MONTHLY ANALYTICS ---
         monthly_data = {}
         if "invoice_date" in df.columns:
             try:
                 df["invoice_date"] = pd.to_datetime(df["invoice_date"], errors="coerce")
                 df_valid = df.dropna(subset=["invoice_date"])
+
                 if not df_valid.empty:
-                    monthly_data = df_valid.groupby(
-                        df_valid["invoice_date"].dt.month
-                    )["total_amount"].sum().to_dict()
+                    monthly_data = (
+                        df_valid.groupby(df_valid["invoice_date"].dt.month)["total_amount"]
+                        .sum()
+                        .to_dict()
+                    )
             except Exception:
                 monthly_data = {}
 
@@ -97,41 +96,56 @@ def dashboard():
         )
 
     except Exception as e:
-        print("ERROR:", e)
-        return f"Error: {str(e)}"
+        print("Dashboard ERROR:", e)
+        return f"Dashboard Error: {str(e)}"
 
 
+# ---------------- UPLOAD ----------------
 @main.route('/upload', methods=['POST'])
 def upload_file():
-    if 'invoice_file' not in request.files:
-        return "No file uploaded"
+    try:
+        if 'invoice_file' not in request.files:
+            return "No file uploaded"
 
-    file = request.files['invoice_file']
+        file = request.files['invoice_file']
 
-    if file.filename == '':
-        return "No selected file"
+        if file.filename == '':
+            return "No selected file"
 
-    # Ensure upload folder exists
-    os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+        # --- FILE VALIDATION ---
+        if not file.filename.lower().endswith(('.png', '.jpg', '.jpeg')):
+            return "Invalid file type"
 
-    filename = secure_filename(file.filename)
-    filepath = os.path.join(UPLOAD_FOLDER, filename)
-    file.save(filepath)
+        os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
-    # 🔥 OCR + processing
-    text = extract_text(filepath)
-    data = extract_invoice_data(text)
-    validation = validate_invoice(data)
-    fraud_result = detect_fraud(data)
+        filename = secure_filename(file.filename)
+        filepath = os.path.join(UPLOAD_FOLDER, filename)
+        file.save(filepath)
 
-    # Save to CSV
-    save_invoice(data)
+        # --- PIPELINE ---
+        text = extract_text(filepath)
 
-    # ✅ RETURN RESULT PAGE (CORRECT FLOW)
-    return render_template(
-        'result.html',
-        invoice_data=data,
-        validation_result=validation,
-        fraud_result=fraud_result,
-        extracted_text=text
-    )
+        if not text.strip():
+            return "OCR failed. Try clearer image."
+
+        data = extract_invoice_data(text)
+
+        validation = validate_invoice(data)
+
+        fraud_result = detect_fraud(data)
+
+        save_invoice(data)
+
+        print("Invoice processed successfully")
+
+        return render_template(
+            'result.html',
+            invoice_data=data,
+            validation_result=validation,
+            fraud_result=fraud_result,
+            extracted_text=text
+        )
+
+    except Exception as e:
+        print("Upload ERROR:", e)
+        return f"Upload Error: {str(e)}"

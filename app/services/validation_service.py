@@ -1,22 +1,48 @@
 def validate_invoice(data):
+    validation = {
+        "status": "Valid",
+        "calculated_subtotal": 0.0,
+        "errors": []
+    }
+
     try:
-        total = float(data["total_amount"]) if data["total_amount"] else 0
-        tax = float(data["tax_amount"]) if data["tax_amount"] else 0
+        # --- SAFE EXTRACTION ---
+        total = float(data.get("total_amount") or 0)
+        tax = float(data.get("tax_amount") or 0)
 
+        # --- CALCULATE SUBTOTAL ---
         subtotal = total - tax
+        validation["calculated_subtotal"] = round(subtotal, 2)
 
-        validation = {
-            "calculated_subtotal": round(subtotal, 2),
-            "validation_status": "Valid"
-        }
+        # --- FIELD VALIDATION ---
+        if not data.get("invoice_number"):
+            validation["errors"].append("Missing Invoice Number")
+
+        if not data.get("invoice_date"):
+            validation["errors"].append("Missing Invoice Date")
+
+        if not data.get("vendor_name"):
+            validation["errors"].append("Missing Vendor Name")
+
+        # --- LOGIC VALIDATION ---
+        if total <= 0:
+            validation["errors"].append("Invalid Total Amount")
+
+        if tax < 0:
+            validation["errors"].append("Invalid Tax Amount")
 
         if subtotal < 0:
-            validation["validation_status"] = "Invalid Data"
+            validation["errors"].append("Subtotal cannot be negative")
 
-        if not data["invoice_number"] or not data["invoice_date"] or not data["vendor_name"]:
-            validation["validation_status"] = "Missing Important Fields"
+        # --- FINAL STATUS ---
+        if validation["errors"]:
+            validation["status"] = "Invalid"
 
         return validation
 
-    except:
-        return {"validation_status": "Validation Failed"}
+    except Exception as e:
+        return {
+            "status": "Error",
+            "calculated_subtotal": 0.0,
+            "errors": [str(e)]
+        }
