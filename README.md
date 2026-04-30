@@ -1,37 +1,48 @@
-# Financial Document Analysis System Using AI
+# 🚀 Financial Document Analysis System Using AI
 
-A smart AI-based system that automates invoice processing using OCR, NLP, and machine learning techniques. This project extracts, validates, and analyzes financial documents such as invoices and receipts.
-
----
-
-## 🚀 Features
-
-* Upload invoices (PDF or Image)
-* OCR-based text extraction
-* Automatic invoice data extraction
-* Validation of invoice fields
-* Fraud detection using machine learning
-* Data storage in CSV
-* Clean and interactive UI
+An AI-powered system that automates invoice processing using **OCR, NLP, and Machine Learning**.
+It extracts, validates, detects fraud, and visualizes financial data through an interactive dashboard.
 
 ---
 
-## 🧠 Technologies Used
+## 🌐 Live Demo
 
-* Python
-* Flask
-* OpenCV (cv2)
-* Tesseract OCR
-* spaCy (NLP)
-* Scikit-learn (ML - Isolation Forest)
-* Pandas
-* HTML, CSS (Frontend)
+👉 *(Add your Render link here after deployment)*
+`https://your-app-name.onrender.com`
+
+---
+
+## ✨ Key Features
+
+* 📄 Upload invoices (PDF / Images)
+* 🔍 OCR-based text extraction (Tesseract)
+* 🧠 Intelligent data extraction using NLP (spaCy)
+* ✅ Invoice validation logic
+* 🚨 Fraud detection using ML (Isolation Forest)
+* 📊 Analytics dashboard with charts
+* 💾 Automatic data storage (CSV)
+* 🎨 Modern responsive UI
+
+---
+
+## 🧠 Tech Stack
+
+| Category | Technology                      |
+| -------- | ------------------------------- |
+| Backend  | Python, Flask                   |
+| OCR      | Tesseract, OpenCV               |
+| NLP      | spaCy                           |
+| ML       | Scikit-learn (Isolation Forest) |
+| Data     | Pandas                          |
+| Frontend | HTML, CSS, Chart.js             |
 
 ---
 
 ## ⚙️ System Workflow
 
-Upload Document → OCR → Data Extraction → Validation → Fraud Detection → Store Data → Display Results
+```
+Upload Invoice → OCR → Data Extraction → Validation → Fraud Detection → Store Data → Dashboard Analytics
+```
 
 ---
 
@@ -51,56 +62,55 @@ Financial-Document-AI/
 │   ├── templates/
 │   │   ├── index.html
 │   │   ├── result.html
+│   │   ├── dashboard.html
 │   │
+│   ├── static/
+│   ├── uploads/
 │   ├── routes.py
 │
 ├── app.py
 ├── config.py
 ├── requirements.txt
 ├── invoice_database.csv
+└── README.md
 ```
 
 ---
 
-## ▶️ How to Run the Project
+## ▶️ How to Run Locally
 
-1. Clone the repository
+### 1. Clone Repository
 
 ```
 git clone https://github.com/abhii-creep-hub/Financial_Doc_Analysis.git
-```
-
-2. Navigate to project folder
-
-```
 cd Financial_Doc_Analysis
 ```
 
-3. Create virtual environment
+### 2. Create Virtual Environment
 
 ```
 python -m venv .venv
 ```
 
-4. Activate environment
+### 3. Activate Environment
 
 ```
 .\.venv\Scripts\activate
 ```
 
-5. Install dependencies
+### 4. Install Dependencies
 
 ```
 pip install -r requirements.txt
 ```
 
-6. Run the application
+### 5. Run Application
 
 ```
 python app.py
 ```
 
-7. Open in browser
+### 6. Open Browser
 
 ```
 http://127.0.0.1:5000
@@ -110,21 +120,31 @@ http://127.0.0.1:5000
 
 ## 📊 Output
 
-* Extracted invoice details
-* Validation status
-* Fraud detection result
-* OCR extracted text
+* Extracted invoice fields (vendor, amount, tax, etc.)
+* Validation results
+* Fraud detection status
+* OCR extracted raw text
+* Dashboard analytics (total invoices, revenue, vendor distribution)
 
 ---
 
-## 🎯 Use Case
+## 🎯 Use Cases
 
-This system can be used by:
+* 📊 Finance & Accounting automation
+* 🧾 Invoice processing systems
+* 🏢 Enterprise expense management
+* 🔍 Audit & compliance systems
 
-* Accounting firms
-* Finance departments
-* Audit systems
-* Invoice automation tools
+---
+
+## 🚀 Future Improvements
+
+* Database integration (MySQL / PostgreSQL)
+* User authentication system
+* Batch invoice processing
+* Advanced fraud detection models (Deep Learning)
+* Cloud deployment optimization
+* API-based integration
 
 ---
 
@@ -136,16 +156,15 @@ This system can be used by:
 
 ---
 
-## 📌 Future Improvements
+## 📌 Highlights
 
-* Database integration (SQLite/MySQL)
-* Dashboard with analytics charts
-* Multi-document batch processing
-* Improved fraud detection model
-* User authentication system
+* End-to-end AI pipeline (OCR → NLP → ML)
+* Real-time dashboard analytics
+* Modular and scalable architecture
+* Deployment-ready Flask application
 
 ---
 
 ## 📄 License
 
-This project is for educational purposes.
+This project is developed for educational purposes.
