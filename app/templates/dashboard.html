@@ -4,121 +4,199 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Modern Dashboard</title>
-    
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
     <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
         body {
             font-family: 'Outfit', sans-serif;
             background: #050505;
+            background-image: radial-gradient(circle at 50% 0%, #1e1b4b, #050505 60%);
             color: white;
             padding: 40px;
+            overflow-x: hidden;
         }
-
         .container {
             max-width: 1100px;
             margin: auto;
         }
-
         h1 {
             font-size: 2.5rem;
-            margin-bottom: 30px;
+            margin-bottom: 40px;
+            text-shadow: 0 0 20px rgba(139, 92, 246, 0.5);
         }
-
         .cards {
             display: flex;
-            gap: 20px;
+            gap: 25px;
             margin-bottom: 40px;
+            flex-wrap: wrap;
         }
-
         .card {
             flex: 1;
-            background: #111;
-            padding: 25px;
+            min-width: 220px;
+            background: rgba(17, 17, 17, 0.8);
+            backdrop-filter: blur(10px);
+            padding: 30px;
             border-radius: 15px;
             text-align: center;
+            border: 1px solid rgba(99, 102, 241, 0.1);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5), inset 0 0 15px rgba(99, 102, 241, 0.05);
+            transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
         }
-
+        .card:hover {
+            transform: translateY(-8px);
+            border-color: rgba(99, 102, 241, 0.5);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.6), inset 0 0 25px rgba(99, 102, 241, 0.2), 0 0 20px rgba(99, 102, 241, 0.2);
+        }
+        .card h3 {
+            color: #a5b4fc;
+            font-weight: 400;
+            margin-bottom: 10px;
+            font-size: 1.1rem;
+        }
+        .card p {
+            font-size: 2.2rem;
+            font-weight: 700;
+            background: linear-gradient(90deg, #fff, #c4b5fd);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
         .chart-box {
-            background: #111;
-            padding: 25px;
-            border-radius: 15px;
+            background: rgba(17, 17, 17, 0.8);
+            backdrop-filter: blur(10px);
+            padding: 30px;
+            border-radius: 20px;
+            border: 1px solid rgba(99, 102, 241, 0.1);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5), inset 0 0 15px rgba(99, 102, 241, 0.05);
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
         }
-
-        canvas {
-            background: transparent;
+        .chart-box:hover {
+            border-color: rgba(99, 102, 241, 0.3);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5), inset 0 0 20px rgba(99, 102, 241, 0.1), 0 0 15px rgba(99, 102, 241, 0.1);
+        }
+        .chart-box h2 {
+            margin-bottom: 25px;
+            color: #e0e7ff;
+            font-weight: 500;
+        }
+        .chart-container {
+            height: 350px;
+            max-height: 350px;
+            overflow: hidden;
+            position: relative;
+        }
+        .chart-container canvas {
+            width: 100% !important;
+            height: 350px !important;
+            display: block;
+        }
+        .no-data {
+            text-align: center;
+            color: #888;
+            padding: 40px 0;
+            font-style: italic;
+        }
+        @media (max-width: 768px) {
+            .cards { flex-direction: column; }
         }
     </style>
 </head>
 <body>
-
 <div class="container">
-
-    <h1>Dashboard Overview</h1>
-
+    <h1>System Dashboard</h1>
     <div class="cards">
         <div class="card">
             <h3>Total Invoices</h3>
-            <p>{{ total_invoices }}</p>
+            <p>{{ total_invoices | default(0) }}</p>
         </div>
-
         <div class="card">
             <h3>Total Revenue</h3>
-            <p>₹ {{ total_revenue }}</p>
+            <p>{{ total_revenue | default(0) }}</p>
         </div>
-
         <div class="card">
             <h3>Average Amount</h3>
-            <p>₹ {{ avg_amount }}</p>
+            <p>{{ avg_amount | default(0) }}</p>
         </div>
     </div>
 
+    {% set vc = vendor_counts | default({}) %}
     <div class="chart-box">
         <h2>Revenue by Vendor</h2>
-        <canvas id="vendorChart"></canvas>
+        {% if vc and vc|length > 0 %}
+            <div class="chart-container">
+                <canvas id="vendorChart"></canvas>
+            </div>
+        {% else %}
+            <div class="no-data">No data available</div>
+        {% endif %}
     </div>
-
 </div>
 
 <script>
-    const vendorData = {{ vendor_counts | tojson }};
+    let vendorData = {};
+    try {
+        const raw = '{{ vc | tojson | safe }}';
+        vendorData = raw ? JSON.parse(raw) : {};
+    } catch (e) {
+        vendorData = {};
+    }
 
-    const labels = Object.keys(vendorData);
-    const values = Object.values(vendorData);
+    if (vendorData && Object.keys(vendorData).length > 0) {
+        const labels = Object.keys(vendorData);
+        const values = Object.values(vendorData);
+        const ctx = document.getElementById("vendorChart");
 
-    const ctx = document.getElementById("vendorChart").getContext("2d");
-
-    new Chart(ctx, {
-        type: "bar",
-        data: {
-            labels: labels,
-            datasets: [{
-                label: "Invoices per Vendor",
-                data: values,
-                backgroundColor: "rgba(99, 102, 241, 0.7)",
-                borderRadius: 8
-            }]
-        },
-        options: {
-            plugins: {
-                legend: {
-                    labels: {
-                        color: "white"
+        if (ctx) {
+            new Chart(ctx, {
+                type: "bar",
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: "Invoices per Vendor",
+                        data: values,
+                        backgroundColor: "rgba(139, 92, 246, 0.4)", // Neon purple fill
+                        borderColor: "#a78bfa", // Bright border to simulate glow
+                        borderWidth: 2,
+                        borderRadius: 8,
+                        hoverBackgroundColor: "rgba(139, 92, 246, 0.8)",
+                        hoverBorderColor: "#fff"
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    animation: {
+                        duration: 1000,
+                        easing: 'easeOutQuart'
+                    },
+                    plugins: {
+                        legend: {
+                            labels: { color: "#e0e7ff", font: { family: 'Outfit', size: 14 } }
+                        },
+                        tooltip: {
+                            backgroundColor: 'rgba(17, 17, 17, 0.9)',
+                            titleColor: '#a5b4fc',
+                            bodyColor: '#fff',
+                            borderColor: 'rgba(99, 102, 241, 0.3)',
+                            borderWidth: 1,
+                            padding: 12
+                        }
+                    },
+                    scales: {
+                        x: { 
+                            ticks: { color: "#94a3b8", font: { family: 'Outfit' } },
+                            grid: { color: "rgba(255, 255, 255, 0.05)" }
+                        },
+                        y: {
+                            ticks: { color: "#94a3b8", font: { family: 'Outfit' } },
+                            beginAtZero: true,
+                            grid: { color: "rgba(255, 255, 255, 0.05)" }
+                        }
                     }
                 }
-            },
-            scales: {
-                x: {
-                    ticks: { color: "white" }
-                },
-                y: {
-                    ticks: { color: "white" }
-                }
-            }
+            });
         }
-    });
+    }
 </script>
-
 </body>
 </html>

@@ -13,52 +13,92 @@ main = Blueprint('main', __name__)
 
 UPLOAD_FOLDER = "app/uploads"
 
+
+@main.route('/')
+def home():
+    return render_template('index.html')
+
+
 @main.route('/dashboard')
 def dashboard():
     try:
+        # If file not exists
+        if not os.path.exists("invoice_database.csv"):
+            return render_template(
+                "dashboard.html",
+                total_invoices=0,
+                total_revenue=0,
+                avg_amount=0,
+                vendor_counts={},
+                monthly_data={}
+            )
+
         df = pd.read_csv("invoice_database.csv")
 
-        df.columns = [col.strip().lower().replace(" ", "_") for col in df.columns]
+        # If CSV empty
+        if df.empty:
+            return render_template(
+                "dashboard.html",
+                total_invoices=0,
+                total_revenue=0,
+                avg_amount=0,
+                vendor_counts={},
+                monthly_data={}
+            )
 
-        print("Columns:", df.columns)
-        print(df.head())
+        # Clean column names
+        df.columns = [str(col).strip().lower().replace(" ", "_") for col in df.columns]
 
+        # Fix missing columns
         if "vendor_name" not in df.columns:
             if "vendor" in df.columns:
                 df.rename(columns={"vendor": "vendor_name"}, inplace=True)
             else:
-                return f"Error: vendor column missing. Found: {df.columns}"
+                df["vendor_name"] = "Unknown"
 
         if "total_amount" not in df.columns:
-            return f"Error: total_amount column missing. Found: {df.columns}"
+            df["total_amount"] = 0
 
-        df["total_amount"] = pd.to_numeric(df["total_amount"], errors="coerce")
+        # Convert data
+        df["total_amount"] = pd.to_numeric(df["total_amount"], errors="coerce").fillna(0)
+        df["vendor_name"] = df["vendor_name"].fillna("Unknown").astype(str)
 
+        # Remove invalid vendor names
+        df = df[~df["vendor_name"].str.match(r'^\d+(\.\d+)?$', na=False)]
+
+        # Stats
         total_invoices = len(df)
         total_revenue = df["total_amount"].sum()
-        avg_amount = df["total_amount"].mean()
+        avg_amount = df["total_amount"].mean() if total_invoices > 0 else 0
 
-        df = df[df["vendor_name"].notna()]
-        df["vendor_name"] = df["vendor_name"].astype(str)
-        df = df[~df["vendor_name"].str.match(r'^\d+(\.\d+)?$')]
+        # Vendor counts
+        vendor_counts = df["vendor_name"].value_counts().to_dict() or {}
 
-        vendor_counts = df["vendor_name"].value_counts().to_dict()
+        # Monthly data
+        monthly_data = {}
+        if "invoice_date" in df.columns:
+            try:
+                df["invoice_date"] = pd.to_datetime(df["invoice_date"], errors="coerce")
+                df_valid = df.dropna(subset=["invoice_date"])
+                if not df_valid.empty:
+                    monthly_data = df_valid.groupby(
+                        df_valid["invoice_date"].dt.month
+                    )["total_amount"].sum().to_dict()
+            except Exception:
+                monthly_data = {}
 
         return render_template(
             "dashboard.html",
             total_invoices=total_invoices,
             total_revenue=round(total_revenue, 2),
             avg_amount=round(avg_amount, 2),
-            vendor_counts=vendor_counts
+            vendor_counts=vendor_counts,
+            monthly_data=monthly_data
         )
 
     except Exception as e:
+        print("ERROR:", e)
         return f"Error: {str(e)}"
-
-
-@main.route('/')
-def home():
-    return render_template('index.html')
 
 
 @main.route('/upload', methods=['POST'])
@@ -71,17 +111,23 @@ def upload_file():
     if file.filename == '':
         return "No selected file"
 
+    # Ensure upload folder exists
+    os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+
     filename = secure_filename(file.filename)
     filepath = os.path.join(UPLOAD_FOLDER, filename)
     file.save(filepath)
 
+    # 🔥 OCR + processing
     text = extract_text(filepath)
     data = extract_invoice_data(text)
     validation = validate_invoice(data)
     fraud_result = detect_fraud(data)
 
+    # Save to CSV
     save_invoice(data)
 
+    # ✅ RETURN RESULT PAGE (CORRECT FLOW)
     return render_template(
         'result.html',
         invoice_data=data,
