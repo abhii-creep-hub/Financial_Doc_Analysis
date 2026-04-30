@@ -6,15 +6,15 @@ def validate_invoice(data):
     }
 
     try:
-        # --- SAFE EXTRACTION ---
+        
         total = float(data.get("total_amount") or 0)
         tax = float(data.get("tax_amount") or 0)
 
-        # --- CALCULATE SUBTOTAL ---
+        
         subtotal = total - tax
         validation["calculated_subtotal"] = round(subtotal, 2)
 
-        # --- FIELD VALIDATION ---
+       
         if not data.get("invoice_number"):
             validation["errors"].append("Missing Invoice Number")
 
@@ -24,7 +24,7 @@ def validate_invoice(data):
         if not data.get("vendor_name"):
             validation["errors"].append("Missing Vendor Name")
 
-        # --- LOGIC VALIDATION ---
+      
         if total <= 0:
             validation["errors"].append("Invalid Total Amount")
 
@@ -34,7 +34,7 @@ def validate_invoice(data):
         if subtotal < 0:
             validation["errors"].append("Subtotal cannot be negative")
 
-        # --- FINAL STATUS ---
+        
         if validation["errors"]:
             validation["status"] = "Invalid"
 

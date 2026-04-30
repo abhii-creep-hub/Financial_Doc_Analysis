@@ -8,7 +8,7 @@ def save_invoice(data):
     try:
         file_exists = os.path.isfile(FILE_PATH)
 
-        # --- CLEAN DATA BEFORE SAVING ---
+        
         cleaned_data = {
             "invoice_number": str(data.get("invoice_number") or "").strip(),
             "invoice_date": str(data.get("invoice_date") or "").strip(),
@@ -28,7 +28,7 @@ def save_invoice(data):
 
             writer = csv.DictWriter(file, fieldnames=fieldnames)
 
-            # --- WRITE HEADER ONLY ONCE ---
+           
             if not file_exists:
                 writer.writeheader()
 
