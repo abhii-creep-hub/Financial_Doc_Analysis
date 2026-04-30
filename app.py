@@ -8,25 +8,21 @@ app = Flask(
     static_folder="app/static"
 )
 
+# Secret key
 app.secret_key = os.environ.get("SECRET_KEY", "dev-secret-key-change-in-production")
 
+# Production config
+app.config["ENV"] = os.environ.get("FLASK_ENV", "production")
+app.config["DEBUG"] = False
 
-app.config["ENV"] = os.environ.get("FLASK_ENV", "development")
-app.config["DEBUG"] = True
-
-
+# Ensure upload folder exists
 UPLOAD_FOLDER = os.path.join("app", "uploads")
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
-
+# Register routes
 app.register_blueprint(main)
 
-@app.errorhandler(Exception)
-def handle_error(e):
-    print("FULL ERROR:", e)
-    return f"<h2>ERROR:</h2><pre>{str(e)}</pre>", 500
-
-
+# Run only locally (Render uses gunicorn)
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
-    app.run(host="0.0.0.0", port=port, debug=True)
+    app.run(host="0.0.0.0", port=port)
