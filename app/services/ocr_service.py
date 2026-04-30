@@ -23,4 +23,4 @@ def extract_text(image_path):
             return "No text detected"
 
     except Exception as e:
-        return "OCR failed"
+        return str(e)
