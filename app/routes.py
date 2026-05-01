@@ -2,6 +2,8 @@ import os
 import pandas as pd
 from flask import Blueprint, render_template, request
 from werkzeug.utils import secure_filename
+from flask_login import login_user, logout_user, login_required, current_user
+from app.main import db, User, Invoice
 
 from app.services.ocr_service import extract_text
 from app.services.extraction_service import extract_invoice_data
@@ -16,12 +18,14 @@ UPLOAD_FOLDER = "app/uploads"
 
 # ---------------- HOME ----------------
 @main.route('/')
+@login_required
 def home():
     return render_template('index.html')
 
 
 # ---------------- DASHBOARD ----------------
 @main.route('/dashboard')
+@login_required
 def dashboard():
     try:
         if not os.path.exists("invoice_database.csv"):
@@ -102,6 +106,7 @@ def dashboard():
 
 # ---------------- UPLOAD ----------------
 @main.route('/upload', methods=['POST'])
+@login_required
 def upload_file():
     try:
         if 'invoice_file' not in request.files:
@@ -149,3 +154,35 @@ def upload_file():
     except Exception as e:
         print("Upload ERROR:", e)
         return f"Upload Error: {str(e)}"
+@main.route("/signup", methods=["GET", "POST"])
+def signup():
+    from flask import request, redirect, render_template
+
+    if request.method == "POST":
+        user = User(
+            username=request.form["username"],
+            password=request.form["password"]
+        )
+        db.session.add(user)
+        db.session.commit()
+        return redirect("/login")
+
+    return render_template("signup.html")
+@main.route("/login", methods=["GET", "POST"])
+def login():
+    from flask import request, redirect, render_template
+
+    if request.method == "POST":
+        user = User.query.filter_by(username=request.form["username"]).first()
+
+        if user and user.password == request.form["password"]:
+            login_user(user)
+            return redirect("/")
+
+    return render_template("login.html")
+@main.route("/logout")
+@login_required
+def logout():
+    from flask import redirect
+    logout_user()
+    return redirect("/login")
