@@ -22,34 +22,40 @@ def home():
 @main.route('/upload', methods=['POST'])
 @login_required
 def upload_file():
+    try:
+        if 'invoice_file' not in request.files:
+            return "No file uploaded"
 
-    file = request.files['invoice_file']
+        file = request.files['invoice_file']
 
-    if file.filename == '':
-        return "No file"
-    filename = secure_filename(file.filename)
-    filepath = os.path.join(UPLOAD_FOLDER, filename)
-    file.save(filepath)
+        if file.filename == '':
+            return "Empty file"
 
-    text = extract_text(filepath)
-    data = extract_invoice_data(text)
+        filename = secure_filename(file.filename)
+        filepath = os.path.join("app/uploads", filename)
 
-    # SAVE TO DB
-    invoice = Invoice(
-        filename=filename,
-        user_id=current_user.id,
-        invoice_number=data["invoice_number"],
-        vendor_name=data["vendor_name"],
-        invoice_date=data["invoice_date"],
-        total_amount=data["total_amount"],
-        tax_amount=data["tax_amount"]
-    )
+        os.makedirs("app/uploads", exist_ok=True)
+        file.save(filepath)
 
-    db.session.add(invoice)
-    db.session.commit()
+        # OCR
+        try:
+            text = extract_text(filepath)
+        except Exception as e:
+            return f"OCR ERROR: {str(e)}"
 
-    return render_template("result.html", invoice_data=data, extracted_text=text)
+        # Extraction
+        try:
+            data = extract_invoice_data(text)
+        except Exception as e:
+            return f"EXTRACTION ERROR: {str(e)}"
 
+        return render_template("result.html",
+                               invoice_data=data,
+                               extracted_text=text)
+
+    except Exception as e:
+        return f"MAIN ERROR: {str(e)}"
+    
 # ---------------- SIGNUP ----------------
 @main.route("/signup", methods=["GET", "POST"])
 def signup():
