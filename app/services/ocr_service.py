@@ -6,7 +6,7 @@ API_KEY = os.environ.get("OCR_API_KEY")
 def extract_text(image_path):
     try:
         if not API_KEY:
-            return "ERROR: API key missing"
+            return "API KEY MISSING"
 
         with open(image_path, 'rb') as f:
             response = requests.post(
@@ -14,17 +14,23 @@ def extract_text(image_path):
                 files={'file': f},
                 data={
                     'apikey': API_KEY,
-                    'language': 'eng'
+                    'language': 'eng',
+                    'OCREngine': 2   # 🔥 IMPORTANT (better accuracy)
                 }
             )
 
         result = response.json()
 
+        # 🔥 show full error
         if result.get("IsErroredOnProcessing"):
-            return str(result)
+            return f"ERROR: {result}"
 
         text = result['ParsedResults'][0]['ParsedText']
-        return text.strip()
+
+        if not text.strip():
+            return "NO TEXT DETECTED"
+
+        return text
 
     except Exception as e:
-        return str(e)
+        return f"EXCEPTION: {str(e)}"
