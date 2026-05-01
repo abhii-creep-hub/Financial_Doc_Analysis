@@ -50,8 +50,10 @@ def upload_file():
             return f"EXTRACTION ERROR: {str(e)}"
 
         return render_template("result.html",
-                               invoice_data=data,
-                               extracted_text=text)
+                       invoice_data=data,
+                       extracted_text=text,
+                       validation_result={},
+                       fraud_result={})
 
     except Exception as e:
         return f"MAIN ERROR: {str(e)}"
