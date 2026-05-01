@@ -4,9 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Invoice Analysis Result</title>
+
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
-    <!-- html2pdf library -->
+
+    <!-- html2pdf -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
     <style>
         body {
             font-family: 'Outfit', sans-serif;
@@ -16,6 +19,7 @@
             margin: 0;
             padding: 40px 20px;
         }
+
         .container {
             max-width: 900px;
             margin: auto;
@@ -24,176 +28,131 @@
             padding: 40px;
             border-radius: 20px;
             border: 1px solid rgba(139, 92, 246, 0.2);
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5), 0 0 20px rgba(139, 92, 246, 0.1);
-            transition: all 0.3s ease;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
         }
+
         h1 {
-            color: #ffffff;
             text-align: center;
             margin-bottom: 30px;
-            text-shadow: 0 0 15px rgba(255, 255, 255, 0.3);
         }
+
         h2 {
             color: #a5b4fc;
-            margin-top: 0;
-            font-size: 1.3rem;
             border-bottom: 1px solid rgba(165, 180, 252, 0.2);
             padding-bottom: 10px;
         }
+
         .card {
             background: rgba(30, 41, 59, 0.5);
             padding: 25px;
             border-radius: 16px;
             margin-bottom: 25px;
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            transition: box-shadow 0.3s ease, border-color 0.3s ease;
         }
-        .card:hover {
-            border-color: rgba(139, 92, 246, 0.4);
-            box-shadow: 0 0 25px rgba(139, 92, 246, 0.15);
+
+        ul {
+            list-style: none;
+            padding: 0;
         }
-        ul { list-style: none; padding: 0; margin: 0; }
+
         li {
             padding: 10px 0;
-            border-bottom: 1px solid rgba(255,255,255,0.05);
             display: flex;
             justify-content: space-between;
         }
-        li:last-child { border-bottom: none; }
-        strong { color: #cbd5e1; }
+
         pre {
-            white-space: pre-wrap;
-            word-wrap: break-word;
             background: #000;
             padding: 20px;
             border-radius: 12px;
-            overflow-x: auto;
-            border: 1px solid rgba(99, 102, 241, 0.3);
-            box-shadow: inset 0 0 15px rgba(99, 102, 241, 0.1);
             color: #a5b4fc;
-            font-family: 'Courier New', Courier, monospace;
         }
+
         .btn-link {
-            display: inline-block;
             padding: 12px 24px;
             background: linear-gradient(45deg, #4f46e5, #8b5cf6);
             color: white;
             text-decoration: none;
             border-radius: 8px;
-            font-weight: 600;
-            font-family: inherit;
-            font-size: 1rem;
-            border: none;
             cursor: pointer;
-            box-shadow: 0 0 15px rgba(99, 102, 241, 0.4);
-            transition: box-shadow 0.3s, transform 0.2s;
-            text-align: center;
+            border: none;
         }
-        .btn-link:hover {
-            box-shadow: 0 0 25px rgba(139, 92, 246, 0.8);
-            transform: translateY(-2px);
-        }
+
         .btn-green {
             background: linear-gradient(45deg, #10b981, #059669);
-            box-shadow: 0 0 15px rgba(16, 185, 129, 0.4);
         }
-        .btn-green:hover {
-            box-shadow: 0 0 25px rgba(16, 185, 129, 0.8);
-        }
+
         .action-buttons {
             display: flex;
             justify-content: center;
             gap: 15px;
-            margin-top: 20px;
         }
     </style>
 </head>
+
 <body>
-    <div class="container" id="invoice-container">
-        <h1>Analysis Complete</h1>
-        
-        <div class="card">
-            <h2>Extracted Invoice Data</h2>
-            <ul>
-                <li><strong>Invoice Number:</strong> <span>{{ invoice_data["invoice_number"] }}</span></li>
-                <li><strong>Vendor Name:</strong> <span>{{ invoice_data["vendor_name"] }}</span></li>
-                <li><strong>Invoice Date:</strong> <span>{{ invoice_data["invoice_date"] }}</span></li>
-                <li><strong>Total Amount:</strong> <span>{{ invoice_data["total_amount"] }}</span></li>
-                <li><strong>Tax Amount:</strong> <span>{{ invoice_data["tax_amount"] }}</span></li>
-            </ul>
-        </div>
 
-        <div class="card">
-            <h2>Validation Result</h2>
-            <ul>
-                <li><strong>Status:</strong> <span>{{ validation_result["validation_status"] }}</span></li>
-                <li><strong>Calculated Subtotal:</strong> <span>{{ validation_result.get("calculated_subtotal", "N/A") }}</span></li>
-            </ul>
-        </div>
+<div class="container" id="invoice-container">
 
-        <div class="card">
-            <h2>Fraud Detection Result</h2>
-            <p style="margin: 0; color: #fca5a5; font-weight: 500;">{{ fraud_result }}</p>
-        </div>
+    <h1>Analysis Complete</h1>
 
-        <div class="card">
-            <h2>Extracted OCR Text</h2>
-            <pre>{{ extracted_text }}</pre>
-        </div>
-
-        <div class="action-buttons" id="action-buttons">
-            <button onclick="downloadPDF()" class="btn-link btn-green">Download as PDF</button>
-            <a href="/" class="btn-link">Upload Another Invoice</a>
-        </div>
+    <!-- 📊 Invoice Data -->
+    <div class="card">
+        <h2>Extracted Invoice Data</h2>
+        <ul>
+            <li><strong>Invoice Number:</strong> <span>{{ invoice_data["invoice_number"] }}</span></li>
+            <li><strong>Vendor Name:</strong> <span>{{ invoice_data["vendor_name"] }}</span></li>
+            <li><strong>Invoice Date:</strong> <span>{{ invoice_data["invoice_date"] }}</span></li>
+            <li><strong>Total Amount:</strong> <span>{{ invoice_data["total_amount"] }}</span></li>
+            <li><strong>Tax Amount:</strong> <span>{{ invoice_data["tax_amount"] }}</span></li>
+        </ul>
     </div>
 
-    
-    <script>
-        function downloadPDF() {
-           
-            const element = document.getElementById('invoice-container');
-            const buttons = document.getElementById('action-buttons');
-            
-            
-            buttons.style.display = 'none';
+    <!-- ✅ Validation -->
+    <div class="card">
+        <h2>Validation Result</h2>
+        <ul>
+            <li><strong>Status:</strong> <span>{{ validation_result["validation_status"] }}</span></li>
+            <li><strong>Calculated Subtotal:</strong> 
+                <span>{{ validation_result.get("calculated_subtotal", "N/A") }}</span>
+            </li>
+        </ul>
+    </div>
 
-            
-            const originalBackground = element.style.background;
-            const originalBackdrop = element.style.backdropFilter;
-            const originalMargin = element.style.margin;
-            const originalBoxShadow = element.style.boxShadow;
+    <!-- 🚨 FRAUD FIXED -->
+    <div class="card">
+        <h2>Fraud Detection Result</h2>
 
-            
-            element.style.background = '#0f172a'; 
-            element.style.backdropFilter = 'none'; 
-            element.style.margin = '0'; 
-            element.style.boxShadow = 'none'; 
+        {% if fraud_result and fraud_result != {} %}
+            <p style="color:#fca5a5;">
+                <strong>Status:</strong> {{ fraud_result.get("status", "N/A") }} <br>
+                <strong>Reason:</strong> {{ fraud_result.get("reason", "N/A") }}
+            </p>
+        {% else %}
+            <p style="color:#9ca3af;">No fraud analysis available</p>
+        {% endif %}
 
-            
-            const opt = {
-                margin:       10,
-                filename:     'invoice_analysis_{{ invoice_data["invoice_number"] | default("result") }}.pdf',
-                image:        { type: 'jpeg', quality: 0.98 },
-                html2canvas:  { 
-                    scale: 2, 
-                    useCORS: true, 
-                    backgroundColor: '#050505',
-                    scrollY: 0, 
-                    windowWidth: 900 
-                },
-                jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
-            };
+    </div>
 
-            
-            html2pdf().set(opt).from(element).save().then(() => {
-                
-                buttons.style.display = 'flex';
-                element.style.background = originalBackground;
-                element.style.backdropFilter = originalBackdrop;
-                element.style.margin = originalMargin;
-                element.style.boxShadow = originalBoxShadow;
-            });
-        }
-    </script>
+    <!-- 📄 OCR TEXT -->
+    <div class="card">
+        <h2>Extracted OCR Text</h2>
+        <pre>{{ extracted_text }}</pre>
+    </div>
+
+    <!-- 🎯 Buttons -->
+    <div class="action-buttons" id="action-buttons">
+        <button onclick="downloadPDF()" class="btn-link btn-green">Download PDF</button>
+        <a href="/" class="btn-link">Upload Another</a>
+    </div>
+
+</div>
+
+<script>
+function downloadPDF() {
+    const element = document.getElementById('invoice-container');
+    html2pdf().from(element).save();
+}
+</script>
+
 </body>
-</html> 
+</html>
