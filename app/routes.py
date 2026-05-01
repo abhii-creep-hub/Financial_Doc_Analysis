@@ -126,6 +126,30 @@ def login():
         return "Invalid username or password"
 
     return render_template("login.html")
+@main.route("/dashboard")
+@login_required
+def dashboard():
+    invoices = Invoice.query.filter_by(user_id=current_user.id).all()
+
+    total_invoices = len(invoices)
+
+    total_revenue = sum([i.total_amount or 0 for i in invoices])
+
+    avg_amount = total_revenue / total_invoices if total_invoices > 0 else 0
+
+    # vendor counts
+    vendor_counts = {}
+    for inv in invoices:
+        if inv.vendor_name:
+            vendor_counts[inv.vendor_name] = vendor_counts.get(inv.vendor_name, 0) + 1
+
+    return render_template(
+        "dashboard.html",
+        total_invoices=total_invoices,
+        total_revenue=total_revenue,
+        avg_amount=round(avg_amount, 2),
+        vendor_counts=vendor_counts
+    )
 
 
 # ---------------- LOGOUT ----------------
