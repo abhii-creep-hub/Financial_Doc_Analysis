@@ -1,7 +1,6 @@
 import re
 import spacy
 
-# Load NLP model
 nlp = spacy.load("en_core_web_sm")
 
 
@@ -14,7 +13,6 @@ def extract_invoice_data(text):
         "vendor_name": None
     }
 
-    # Clean text
     text = text.replace("\r", "")
 
     # ---------------- INVOICE NUMBER ----------------
@@ -38,29 +36,34 @@ def extract_invoice_data(text):
     if date_match:
         data["invoice_date"] = date_match.group()
 
-    # ---------------- TOTAL AMOUNT ----------------
-    total_match = re.search(
-        r'Total\s*\$?([\d]+\.\d{2})',
-        text,
-        re.IGNORECASE
-    )
+    # ---------------- TOTAL (FIXED) ----------------
+    # Priority: Total Due / Grand Total / last Total
+    total_patterns = [
+        r'(Total\s*Due|Grand\s*Total)[^\d]*([\d]+\.\d{2})',
+        r'Total[^\d]*([\d]+\.\d{2})'
+    ]
 
-    if total_match:
-        try:
-            data["total_amount"] = float(total_match.group(1))
-        except:
-            pass
+    for pattern in total_patterns:
+        matches = re.findall(pattern, text, re.IGNORECASE)
+        if matches:
+            value = matches[-1]  # take LAST total (important)
+            amount = value[-1] if isinstance(value, tuple) else value
+            try:
+                data["total_amount"] = float(amount)
+                break
+            except:
+                pass
 
-    # ---------------- TAX ----------------
+    # ---------------- TAX (FIXED) ----------------
     tax_match = re.search(
-        r'Tax\s*\$?([\d]+\.\d{2})',
+        r'(Tax|GST)[^\d]*([\d]+\.\d{2})',
         text,
         re.IGNORECASE
     )
 
     if tax_match:
         try:
-            data["tax_amount"] = float(tax_match.group(1))
+            data["tax_amount"] = float(tax_match.group(2))
         except:
             pass
 
@@ -78,15 +81,12 @@ def extract_invoice_data(text):
 
     for ent in doc.ents:
 
-        # Date fallback
         if not data["invoice_date"] and ent.label_ == "DATE":
             data["invoice_date"] = ent.text
 
-        # Vendor fallback
         if not data["vendor_name"] and ent.label_ == "ORG":
             data["vendor_name"] = ent.text
 
-        # Amount fallback
         if not data["total_amount"] and ent.label_ == "MONEY":
             try:
                 value = float(re.sub(r"[^\d.]", "", ent.text))
